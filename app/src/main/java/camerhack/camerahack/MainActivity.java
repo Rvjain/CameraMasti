@@ -25,6 +25,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.util.Size;
 import android.util.SparseIntArray;
 import android.view.Surface;
@@ -163,6 +164,7 @@ public class MainActivity extends AppCompatActivity {
             new ImageReader.OnImageAvailableListener() {
                 @Override
                 public void onImageAvailable(ImageReader reader) {
+                    Log.d("MainActivity", "Called");
                     mBackgroundHandler.post(new ImageSaver(reader.acquireNextImage()));
                 }
             };
@@ -190,6 +192,7 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             } finally {
                 mImage.close();
+
                 if (fileOutputStream != null) {
                     try {
                         fileOutputStream.close();
@@ -198,7 +201,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             }
-
         }
     }
 
@@ -339,7 +341,8 @@ public class MainActivity extends AppCompatActivity {
                 mImageReader = ImageReader.newInstance(largestImageSize.getWidth(),
                         largestImageSize.getHeight(),
                         ImageFormat.JPEG,
-                        2);
+                        1);
+                Log.d("MainActivity", "setupCamera");
                 mImageReader.setOnImageAvailableListener(mOnImageAvailableListener,
                         mBackgroundHandler);
 
@@ -396,9 +399,10 @@ public class MainActivity extends AppCompatActivity {
     private void openCamera() {
         CameraManager cameraManager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
         try {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
+                    && ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(MainActivity.this,
-                        new String[]{Manifest.permission.CAMERA},
+                        new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE},
                         1);
                 return;
             }
